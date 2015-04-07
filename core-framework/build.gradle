@@ -1,0 +1,16 @@
+///
+/// Dependencies
+///
+dependencies {
+    // [FRAMEWORK] (Collections)
+    compile group: 'com.goldmansachs',                  name: 'gs-collections',     version: '6.1.0'
+
+    // [FRAMEWORK] (Protocol)
+    compile group: 'io.netty',                          name: 'netty-codec-http',   version: '5.0.0.Alpha2'
+
+    // [FRAMEWORK] (Protocol-JSON)
+    compile group: 'com.eclipsesource.minimal-json',    name: 'minimal-json',       version: '0.9.2'
+
+    // [FRAMEWORK] (Reflection)
+    compile group: 'net.jodah',                         name: 'typetools',          version: '0.4.0'
+}

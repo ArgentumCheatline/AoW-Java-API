@@ -1,0 +1,7 @@
+///
+/// Dependencies
+///
+dependencies {
+    // [WORLD] (Framework)
+    compile project(":core-framework")
+}

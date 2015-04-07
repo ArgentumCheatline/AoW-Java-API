@@ -1,0 +1,31 @@
+///
+/// Build tools included in all projects.
+///
+allprojects {
+    ///
+    /// Repositories
+    ///
+    repositories {
+        jcenter()
+    }
+}
+
+///
+/// Build tools included in all sub-projects.
+///
+subprojects {
+    ///
+    /// Apply JAVA
+    ///
+    apply plugin: 'java'
+
+    ///
+    /// Custom repositories
+    ///
+    repositories {
+        maven {
+            url "http://oss.sonatype.org/content/groups/public/"
+        }
+        mavenCentral()
+    }
+}
