@@ -21,36 +21,25 @@ import me.wolftein.steroid.framework.event.Event;
 import me.wolftein.steroid.world.WorldEntity;
 
 /**
- * Encapsulate an {@link Event} that define when {@link WorldEntity} is created and its the player.
+ * Encapsulate an {@link Event} that define when {@link WorldEntity} updates stats (Health, Mana, etc).
  */
-public final class PlayerJoinEvent extends Event {
+public final class PlayerUpdateStats extends Event {
     private final WorldEntity mEntity;
-    private final String mMessageOfTheDay;
 
     /**
      * Default constructor for {@link PlayerJoinEvent}.
      */
-    public PlayerJoinEvent(WorldEntity entity, String motd) {
+    public PlayerUpdateStats(WorldEntity entity) {
         super(false);
         this.mEntity = entity;
-        this.mMessageOfTheDay = motd;
     }
 
     /**
-     * Retrieves the entity that has been created.
+     * Retrieves the entity that has been updated.
      *
-     * @return The new entity that has been created.
+     * @return The new entity that has been updateds.
      */
     public WorldEntity getEntity() {
         return mEntity;
-    }
-
-    /**
-     * Retrieves the message of the day of the server.
-     *
-     * @return The message of the day of the server.
-     */
-    public String getMessageOfTheDay() {
-        return mMessageOfTheDay;
     }
 }

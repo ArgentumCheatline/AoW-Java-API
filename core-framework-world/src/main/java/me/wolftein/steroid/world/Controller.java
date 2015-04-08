@@ -17,6 +17,7 @@
  */
 package me.wolftein.steroid.world;
 
+import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import com.gs.collections.impl.tuple.Tuples;
@@ -151,6 +152,8 @@ public final class Controller {
 
     /**
      * Authenticate the user.
+     * <br/>
+     * NOTE: This action required to be connected.
      *
      * @param username The username of the controller.
      * @param password The password of the controller.
@@ -165,6 +168,8 @@ public final class Controller {
 
     /**
      * Register a new user.
+     * <br/>
+     * NOTE: This action required to be connected.
      *
      * @param username The username of the controller.
      * @param password The password of the controller.
@@ -185,6 +190,8 @@ public final class Controller {
 
     /**
      * Moves the player into a direction.
+     * <br/>
+     * NOTE: This action required to be logged-in.
      *
      * @param heading The heading of the player.
      */
@@ -198,6 +205,8 @@ public final class Controller {
 
     /**
      * Use an item from the inventory.
+     * <br/>
+     * NOTE: This action required to be logged-in.
      *
      * @param slot The slot where the item is at.
      */
@@ -209,13 +218,15 @@ public final class Controller {
     }
 
     /**
-     * Throw a spell.
+     * Throws a spell.
+     * <br/>
+     * NOTE: This action required to be logged-in.
      *
      * @param id The identifier of the spell.
      * @param x  The x coordinates of the spell.
      * @param y  The y coordinates of the spell.
      */
-    public void magic(int id, int x, int y) {
+    public void throwSpell(int id, int x, int y) {
         if (mLogged) {
             mFramework.getSession().send("ATKHECHI",
                     Tuples.pair("hechizo", id),
@@ -327,12 +338,18 @@ public final class Controller {
         nEntity.setManapoint(nPlayer.get("mana").asInt());
         nEntity.setMaxManapoint(nPlayer.get("maxMana").asInt());
         nEntity.setAdmin(nPlayer.get("esAdmin").asInt() == 1);
-        nEntity.setHeading(Heading.values()[((int) getEntityIdFromValue(nPlayer.get("heading")) - 1)]);
+        nEntity.setHeading(Heading.values()[((int) getEntityHeadingFromValue(nPlayer.get("heading")) - 1)]);
 
         mWorld.pfEntityRegister(nEntity, true);
 
         mLogged = true;
-        mFramework.getEventManager().invokeAsyncEvent(new PlayerJoinEvent(nEntity));
+
+        final JsonArray nMotdArray = message.get("descClient").asArray();
+        final StringBuilder nBuilder = new StringBuilder();
+        for (int i = 0, j = nMotdArray.size(); i < j; i++) {
+            nBuilder.append(nMotdArray.get(i).asString()).append("\n");
+        }
+        mFramework.getEventManager().invokeAsyncEvent(new PlayerJoinEvent(nEntity, nBuilder.toString()));
     }
 
     /**
@@ -367,7 +384,7 @@ public final class Controller {
         final WorldEntity nEntity = mWorld.getCharacter();
         nEntity.setHealth(nHealth);
 
-        // TODO: Event
+        mFramework.getEventManager().invokeAsyncEvent(new PlayerUpdateStats(nEntity));
     }
 
     /**
@@ -381,7 +398,7 @@ public final class Controller {
         final WorldEntity nEntity = mWorld.getCharacter();
         nEntity.setManapoint(nManapoint);
 
-        // TODO: Event
+        mFramework.getEventManager().invokeAsyncEvent(new PlayerUpdateStats(nEntity));
     }
 
     /**
@@ -419,5 +436,19 @@ public final class Controller {
      */
     private long getEntityIdFromValue(JsonValue value) {
         return (value.isString() ? Long.parseLong(value.asString()) : value.asLong());
+    }
+
+    /**
+     * Retrieves the heading of the entity from a {@link com.eclipsesource.json.JsonValue}.
+     * <br/>
+     * NOTE: This is required since Midraks sometimes returns string and sometimes returns long. (:rolleyes:)
+     *
+     * @param value The JSON value to retrieve from.
+     *
+     * @return The unique identifier of the entity.
+     */
+    private long getEntityHeadingFromValue(JsonValue value) {
+        final long v = (value.isString() ? Long.parseLong(value.asString()) : value.asLong());
+        return (v == 0 ? 1 : v);
     }
 }
