@@ -1,5 +1,5 @@
 /*
- * This file is part of jAoW (On Steroids), licensed under the Apache 2.0 License.
+ * This file is part of AoW (On Steroids), licensed under the Apache 2.0 License.
  *
  * Copyright (c) 2014 Agustin Alvarez <wolftein1@gmail.com>
  *
@@ -44,7 +44,7 @@ public final class Scheduler implements TaskExecutor {
     protected long mLoopTickTime, mLoopFrameTime;
 
     /**
-     * Dependency constructor for {@link Scheduler}.
+     * Default constructor for {@link Scheduler}.
      */
     public Scheduler(long desiredTicks) {
         this.mDesiredTicks = desiredTicks;
@@ -76,8 +76,9 @@ public final class Scheduler implements TaskExecutor {
             // Add all task that has been added into the executor with
             while (!mDirtyQueue.isEmpty()) {
                 final Task task = mDirtyQueue.poll();
-                if (task != null)
+                if (task != null) {
                     mQueue.add(task);
+                }
             }
 
             // Deferred all tasks that needs to be executed in asynchronous channel
@@ -137,8 +138,6 @@ public final class Scheduler implements TaskExecutor {
 
     /**
      * Check if the executor is active.
-     *
-     * @return True if the execute is alive, false otherwise.
      */
     public boolean isActive() {
         return mActive.get();
@@ -146,8 +145,6 @@ public final class Scheduler implements TaskExecutor {
 
     /**
      * Check if the executor is overloaded.
-     *
-     * @return True if the execute is overloaded, false otherwise.
      */
     public boolean isOverloaded() {
         return mActive.get();
@@ -155,8 +152,6 @@ public final class Scheduler implements TaskExecutor {
 
     /**
      * Execute a task.
-     *
-     * @param task The task to be executed.
      */
     private void executeTaskIfNotDestroyOrRepeat(Task task) {
         try {

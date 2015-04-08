@@ -1,0 +1,17 @@
+///
+/// Dependencies
+///
+dependencies {
+    // [EXAMPLE] (World + Framework)
+    compile project(":core-framework-world")
+
+    // [EXAMPLE] (Console)
+    compile files("lib/jerminal-core-0.1.1.jar")
+    compile files("lib/jerminal-libgdx-0.1.1.jar")
+
+    // [JTerminal] (LibGDX & Guava Requirements)
+    compile "com.google.guava:guava:17.0"
+    compile "com.badlogicgames.gdx:gdx:0.9.9"
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:0.9.9"
+    compile "com.badlogicgames.gdx:gdx-platform:0.9.9:natives-desktop"
+}

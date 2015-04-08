@@ -141,6 +141,15 @@ public final class Controller {
     }
 
     /**
+     * Disconnect the session.
+     */
+    public void disconnect() {
+        if (mConnected) {
+            mFramework.getSession().disconnect();
+        }
+    }
+
+    /**
      * Authenticate the user.
      *
      * @param username The username of the controller.
