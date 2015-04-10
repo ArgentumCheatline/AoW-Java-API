@@ -211,13 +211,17 @@ public final class Controller {
      * NOTE: This action required to be logged-in.
      *
      * @param heading The heading of the player.
+     *
+     * @return True if the character has been moved.
      */
-    public void move(Heading heading) {
-        if (mLogged && mWorld.isValidMovementForCharacter(heading)) {
+    public boolean move(Heading heading) {
+        final boolean isAllowed = mLogged && mWorld.isValidMovementForCharacter(heading);
+        if (isAllowed) {
             getWorld().getCharacter().setHeading(heading);
             mFramework.getSession().send("POS",
                     Tuples.pair("direccion", heading.ordinal() + 1));
         }
+        return isAllowed;
     }
 
     /**

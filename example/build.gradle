@@ -1,4 +1,12 @@
 ///
+/// Buildscript
+///
+buildscript {
+    repositories { flatDir dirs: 'lib'    }
+    dependencies { classpath ':proguard:' }
+}
+
+///
 /// Dependencies
 ///
 dependencies {
@@ -6,12 +14,33 @@ dependencies {
     compile project(":core-framework-world")
 
     // [EXAMPLE] (Console)
-    compile files("lib/jerminal-core-0.1.1.jar")
-    compile files("lib/jerminal-libgdx-0.1.1.jar")
-
-    // [JTerminal] (LibGDX & Guava Requirements)
     compile "com.google.guava:guava:17.0"
-    compile "com.badlogicgames.gdx:gdx:0.9.9"
-    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:0.9.9"
-    compile "com.badlogicgames.gdx:gdx-platform:0.9.9:natives-desktop"
+    compile files("lib/jerminal-core-0.1.1.jar")
+    compile files("lib/jerminal-javafx-0.1.1.jar")
+}
+
+///
+/// Release
+///
+task release(type: Jar, dependsOn: jar) {
+    manifest {
+        attributes 'Main-Class': 'me.wolftein.steroid.example.Bootstrap'
+    }
+    from (configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/INDEX.LIST'
+        exclude 'META-INF/io.netty.versions.properties'
+        exclude 'META-INF/maven/**'
+        exclude 'LICENSE.txt'
+    }
+    with jar
+}
+
+///
+/// Pro Guard
+///
+task proguard(type: proguard.gradle.ProGuardTask) {
+    configuration 'proguard.txt'
+
+    injars 'build/libs/example.jar'
+    outjars 'build/libs/example-min.jar'
 }
