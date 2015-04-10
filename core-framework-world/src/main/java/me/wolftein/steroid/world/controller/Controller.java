@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.wolftein.steroid.world;
+package me.wolftein.steroid.world.controller;
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
@@ -28,6 +28,9 @@ import me.wolftein.steroid.framework.event.annotation.EventHandler;
 import me.wolftein.steroid.framework.protocol.Session;
 import me.wolftein.steroid.framework.protocol.event.SessionConnectEvent;
 import me.wolftein.steroid.framework.protocol.event.SessionDisconnectEvent;
+import me.wolftein.steroid.world.Heading;
+import me.wolftein.steroid.world.World;
+import me.wolftein.steroid.world.WorldEntity;
 import me.wolftein.steroid.world.event.*;
 
 /**
@@ -61,7 +64,7 @@ public final class Controller {
     private boolean mLogged = false;
 
     /**
-     * Constructor for {@link me.wolftein.steroid.world.Controller}.
+     * Constructor for {@link Controller}.
      *
      * @param application The framework of the world.
      * @param parent      The parent for the game.
@@ -185,6 +188,20 @@ public final class Controller {
                     Tuples.pair("email", email),
                     Tuples.pair("genero", isMale ? 1 : 2),
                     Tuples.pair("raza", race));
+        }
+    }
+
+    /**
+     * Writes a text.
+     * <br/>
+     * NOTE: This action required to be logged-in.
+     *
+     * @param message The message of the player.
+     */
+    public void say(String message) {
+        if (mLogged) {
+            mFramework.getSession().send("RDIALOG",
+                    Tuples.pair("msg", message));
         }
     }
 

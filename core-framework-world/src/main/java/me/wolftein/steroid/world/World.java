@@ -136,7 +136,7 @@ public final class World {
      *
      * @return The entity registered.
      */
-    protected WorldEntity pfEntityRegister(WorldEntity entity, boolean isCharacter) {
+    public WorldEntity pfEntityRegister(WorldEntity entity, boolean isCharacter) {
         Objects.requireNonNull(entity);
 
         if (isCharacter) {
@@ -155,7 +155,7 @@ public final class World {
      *
      * @return The entity unregistered.
      */
-    protected WorldEntity pfEntityUnregister(long id) {
+    public WorldEntity pfEntityUnregister(long id) {
         final WorldEntity nEntity = mEntities.remove(id);
         if (nEntity == null) {
             return null;
@@ -173,7 +173,7 @@ public final class World {
      *
      * @return The entity unregistered.
      */
-    protected WorldEntity pfEntityMove(long id, int x, int y) {
+    public WorldEntity pfEntityMove(long id, int x, int y) {
         final WorldEntity nEntity = mEntities.get(id);
         mMap.setTile(nEntity.getX(), nEntity.getY(), 0L);
 

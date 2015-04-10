@@ -36,9 +36,12 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import me.wolftein.steroid.framework.event.Event;
 import me.wolftein.steroid.framework.event.EventManager;
 import me.wolftein.steroid.framework.protocol.event.SessionConnectEvent;
 import me.wolftein.steroid.framework.protocol.event.SessionDisconnectEvent;
+import me.wolftein.steroid.framework.protocol.event.SessionRecvMessageEvent;
+import me.wolftein.steroid.framework.protocol.event.SessionSendMessageEvent;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -51,10 +54,13 @@ import java.util.function.Consumer;
  * Define the session for communicating with another session.
  */
 public final class Session {
+    /**
+     * The {@link EventManager} of the session.
+     */
     private final EventManager mEventManager;
 
     /**
-     * The {@link io.netty.bootstrap.Bootstrap} on how the protocol works.
+     * The {@link Bootstrap} on how the protocol works.
      */
     private final Bootstrap mBootstrap;
 
@@ -178,7 +184,7 @@ public final class Session {
      * @param method The name of the message to be send.
      */
     public void send(String method) {
-        send(method, (List<Pair<String, Object>>) null);
+        sendAll(method, null);
     }
 
     /**
@@ -188,7 +194,7 @@ public final class Session {
      * @param data   The data of the message to be send.
      */
     public void send(String method, Pair<String, Object>... data) {
-        send(method, FastList.wrapCopy(data));
+        sendAll(method, FastList.wrapCopy(data));
     }
 
     /**
@@ -197,7 +203,7 @@ public final class Session {
      * @param method The name of the message to be send.
      * @param data   The data of the message to be send.
      */
-    public void send(String method, List<Pair<String, Object>> data) {
+    public void sendAll(String method, List<Pair<String, Object>> data) {
         if (!isActive()) {
             return;
         }
@@ -207,6 +213,12 @@ public final class Session {
             final JsonObject nData = new JsonObject();
             data.forEach(T -> addTypeIntoObject(nData, T.getOne(), T.getTwo()));
             nRoot.add("data", nData);
+        }
+
+        final Event nEvent = mEventManager.invokeEvent(new SessionSendMessageEvent(
+                method, nRoot.get("data").asObject()));
+        if (nEvent.isCancelled()) {
+            return;
         }
         mChannel.writeAndFlush(new TextWebSocketFrame(nRoot.toString()));
     }
@@ -248,6 +260,12 @@ public final class Session {
         final JsonObject nFrame = JsonObject.readFrom(frame.text());
         final JsonObject nMessage = nFrame.get("data").asObject();
 
+        final Event nEvent = mEventManager.invokeEvent(new SessionRecvMessageEvent(
+                nFrame.get("function").asString(), nMessage));
+        if (nEvent.isCancelled()) {
+            return;
+        }
+
         final Queue<Consumer<JsonObject>> consumers
                 = mListeners.get(nFrame.getString("function", "none").hashCode());
         if (consumers != null) {
@@ -256,9 +274,13 @@ public final class Session {
     }
 
     /**
-     * Helper method to add a type into the object.
+     * Helper method to add a type into an object.
+     *
+     * @param object The object where to insert the type.
+     * @param key    The key of the value to be inserted.
+     * @param value  The value to be inserted.
      */
-    protected void addTypeIntoObject(JsonObject object, String key, Object value) {
+    private void addTypeIntoObject(JsonObject object, String key, Object value) {
         if (value instanceof JsonObject) {
             object.add(key, (JsonObject) value);
         } else {
